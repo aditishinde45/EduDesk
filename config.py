@@ -15,9 +15,18 @@ class Config:
     DB_PORT = os.getenv('DB_PORT', '3306')
     DB_NAME = os.getenv('DB_NAME', 'edudesk_db')
 
-    # Construct MySQL SQLAlchemy URI with PyMySQL
-    default_db_url = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', default_db_url)
+    # Database engine URL (supports both MySQL and PostgreSQL seamlessly)
+    db_type = os.getenv('DB_TYPE', 'mysql').lower()
+    if db_type in ('postgres', 'postgresql'):
+        default_db_url = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    else:
+        default_db_url = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
+
+    raw_db_url = os.getenv('DATABASE_URL', default_db_url)
+    if raw_db_url.startswith('postgresql://'):
+        raw_db_url = raw_db_url.replace('postgresql://', 'postgresql+psycopg2://', 1)
+
+    SQLALCHEMY_DATABASE_URI = raw_db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_recycle': 280,
