@@ -89,4 +89,10 @@ def create_app(config_class=Config):
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5050))
+    print(f"\n=======================================================")
+    print(f" EduDesk - Certificate Management System")
+    print(f" K. K. Wagh Institute of Engineering Education & Research")
+    print(f" Running on http://127.0.0.1:{port} (http://localhost:{port})")
+    print(f"=======================================================\n")
+    app.run(host='0.0.0.0', port=port, debug=True)
