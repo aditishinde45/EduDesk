@@ -324,3 +324,27 @@ FROM "Certificate" c
 JOIN "Student" s ON c."Student_ID" = s."Student_ID"
 JOIN "Certificate_Type" t ON c."Type_ID" = t."Type_ID"
 JOIN "Issuing_Authority" a ON c."Authority_ID" = a."Authority_ID";
+
+-- -----------------------------------------------------------------------------
+-- Unquoted / Lowercase Aliases for convenient queries in pgAdmin / SQL
+-- Allows querying `SELECT * FROM student;` or `SELECT * FROM "Student";`
+-- -----------------------------------------------------------------------------
+CREATE OR REPLACE VIEW department AS SELECT * FROM "Department";
+CREATE OR REPLACE VIEW course AS SELECT * FROM "Course";
+CREATE OR REPLACE VIEW student AS SELECT * FROM "Student";
+CREATE OR REPLACE VIEW certificate AS SELECT * FROM "Certificate";
+CREATE OR REPLACE VIEW users AS SELECT * FROM "Users";
+CREATE OR REPLACE VIEW revocation AS SELECT * FROM "Revocation";
+CREATE OR REPLACE VIEW certificate_type AS SELECT * FROM "Certificate_Type";
+CREATE OR REPLACE VIEW issuing_authority AS SELECT * FROM "Issuing_Authority";
+CREATE OR REPLACE VIEW audit_log AS SELECT * FROM "Audit_Log";
+CREATE OR REPLACE VIEW notification AS SELECT * FROM "Notification";
+CREATE OR REPLACE VIEW student_phone AS SELECT * FROM "Student_Phone";
+CREATE OR REPLACE VIEW authority_phone AS SELECT * FROM "Authority_Phone";
+
+-- Grant full privileges to postgres and public
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
