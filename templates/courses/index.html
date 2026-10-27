@@ -4,8 +4,8 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h3 class="fw-bold mb-1">Academic Courses</h3>
-        <p class="text-muted mb-0">Programs and diploma courses offered across departments</p>
+        <h3 class="fw-bold mb-1">Engineering Programs & Courses</h3>
+        <p class="text-muted mb-0">Undergraduate (B.Tech) and Postgraduate (M.Tech) degree programs offered across departments</p>
     </div>
     {% if current_user.is_admin %}
     <a href="{{ url_for('courses.add') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm">

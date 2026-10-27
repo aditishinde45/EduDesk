@@ -18,14 +18,14 @@
                         <label for="course_name" class="form-label required-star">Course Name *</label>
                         <input type="text" class="form-control" id="course_name" name="course_name" 
                                value="{{ course.Course_Name if course else '' }}" 
-                               required maxlength="100" placeholder="e.g. Diploma in Computer Technology">
+                               required maxlength="100" placeholder="e.g. B.Tech in Computer Engineering">
                     </div>
 
                     <div class="mb-3">
                         <label for="duration" class="form-label">Duration</label>
                         <input type="text" class="form-control" id="duration" name="duration" 
                                value="{{ course.Duration if course else '' }}" 
-                               maxlength="30" placeholder="e.g. 3 Years, 6 Semesters">
+                               maxlength="30" placeholder="e.g. 4 Years (8 Semesters)">
                     </div>
 
                     <div class="mb-3">

@@ -1,12 +1,12 @@
 # EduDesk - Certificate Management System
-### K. K. Wagh Institute of Engineering Education & Research (Polytechnic), Nashik
+### K. K. Wagh Institute of Engineering Education & Research (Autonomous), Nashik
 
 ![Python](https://img.shields.io/badge/Python-3.13-blue.svg)
 ![Flask](https://img.shields.io/badge/Flask-3.1-black.svg)
-![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple.svg)
 
-**EduDesk** is an enterprise-grade, secure, and clean Certificate Management and Public Verification System custom-built for **K. K. Wagh Polytechnic, Nashik**. It implements complete relational database principles (ER modeling, normalization, composite keys, weak entities, foreign key CASCADE/RESTRICT constraints, and derived attributes) paired with a responsive server-rendered web application.
+**EduDesk** is an enterprise-grade, secure, and clean Certificate Management and Public Verification System custom-built for **K. K. Wagh Institute of Engineering Education & Research (KKWIEER), Nashik**. It implements complete relational database principles (ER modeling, normalization, composite keys, weak entities, foreign key CASCADE/RESTRICT constraints, and derived attributes) paired with a responsive server-rendered web application.
 
 ---
 
@@ -111,7 +111,7 @@ pip install -r requirements.txt
 ### 5. Configure Environment Variables (`.env`)
 Copy `.env.example` to `.env` or edit `.env`:
 ```ini
-SECRET_KEY=kkw-polytechnic-secret-key-2026-very-secure
+SECRET_KEY=kkwieer-autonomous-engineering-secret-key-2026
 DEBUG=True
 
 # MySQL Database Configuration
@@ -186,6 +186,6 @@ python -W ignore -m unittest -v test_app.py
 ---
 
 ## 👨‍💻 Project Information
-- **Institution**: K. K. Wagh Institute of Engineering Education & Research (Polytechnic), Nashik
+- **Institution**: K. K. Wagh Institute of Engineering Education & Research (Autonomous), Nashik
 - **Subject**: Database Management Systems (DBMS) Micro Project
 - **Project Name**: EduDesk - College Certificate Management and Verification System

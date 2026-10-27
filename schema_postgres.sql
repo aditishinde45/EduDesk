@@ -1,5 +1,5 @@
 -- =============================================================================
--- K. K. Wagh Institute of Engineering Education & Research (Polytechnic), Nashik
+-- K. K. Wagh Institute of Engineering Education & Research (Autonomous), Nashik
 -- Certificate Management System (EduDesk)
 -- Database: PostgreSQL (for pgAdmin / Postgres.app)
 -- Relational Schema: Tables 5.1 to 5.12 with PK, FK, Constraints, and Cascade/Restrict rules
@@ -71,7 +71,7 @@ CREATE TABLE "Issuing_Authority" (
     "Registration_No" VARCHAR(50) UNIQUE,
     "Email" VARCHAR(100),
     "Website" VARCHAR(150),
-    "House_no" VARCHAR(20),
+    "House_no" VARCHAR(50),
     "Street" VARCHAR(100),
     "City" VARCHAR(50),
     "State" VARCHAR(50),
@@ -109,7 +109,7 @@ CREATE TABLE "Student" (
     "Enrollment_No" VARCHAR(30) NOT NULL UNIQUE,
     "Date_of_Birth" DATE,
     "Batch_Year" INT,
-    "House_no" VARCHAR(20),
+    "House_no" VARCHAR(50),
     "Street" VARCHAR(100),
     "City" VARCHAR(50),
     "State" VARCHAR(50),

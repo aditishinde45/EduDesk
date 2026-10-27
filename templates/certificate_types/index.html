@@ -5,7 +5,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h3 class="fw-bold mb-1">Certificate Categories</h3>
-        <p class="text-muted mb-0">Define classifications: Degree, Diploma, Course Completion, Merit, etc.</p>
+        <p class="text-muted mb-0">Define classifications: Degree (B.Tech/M.Tech), Semester Grade Card, Capstone Project, Industry Internship, Hackathon Award, etc.</p>
     </div>
     {% if current_user.is_admin or current_user.is_staff %}
     <a href="{{ url_for('certificate_types.add') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
