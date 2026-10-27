@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Student Portal{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-8">
+        <h3 class="fw-bold mb-1">
+            Welcome, {{ student.full_name if student else current_user.Username }}!
+        </h3>
+        <p class="text-muted mb-0">
+            {% if student %}
+            Enrollment No: <strong>{{ student.Enrollment_No }}</strong> | 
+            Department: <strong>{{ student.department.Department_Name }}</strong> | 
+            Course: <strong>{{ student.course.Course_Name }}</strong>
+            {% else %}
+            Student Portal
+            {% endif %}
+        </p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{{ url_for('students.profile') }}" class="btn btn-outline-primary btn-sm me-2">
+            <i class="bi bi-person-badge"></i> My Profile
+        </a>
+        <a href="{{ url_for('certificates.index') }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-patch-check"></i> My Certificates
+        </a>
+    </div>
+</div>
+
+<!-- Student Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-stat-primary">
+            <div class="stat-label">Total Certificates</div>
+            <div class="stat-number">{{ total_certs }}</div>
+            <div class="small opacity-75 mt-1">Credentials earned</div>
+            <i class="bi bi-award-fill stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-stat-success">
+            <div class="stat-label">Active / Valid</div>
+            <div class="stat-number">{{ active_certs }}</div>
+            <div class="small opacity-75 mt-1">Currently valid certificates</div>
+            <i class="bi bi-check-circle-fill stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-stat-warning">
+            <div class="stat-label">Expired</div>
+            <div class="stat-number">{{ expired_certs }}</div>
+            <div class="small opacity-75 mt-1">Past expiry date</div>
+            <i class="bi bi-calendar-x-fill stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-stat-danger">
+            <div class="stat-label">Revoked</div>
+            <div class="stat-number">{{ revoked_certs }}</div>
+            <div class="small opacity-75 mt-1">Revoked credentials</div>
+            <i class="bi bi-x-octagon-fill stat-icon"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Certificates List -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <span class="fw-bold"><i class="bi bi-patch-check text-primary me-2"></i>My Earned Certificates</span>
+                <a href="{{ url_for('certificates.index') }}" class="btn btn-link btn-sm text-decoration-none p-0">View All &rarr;</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Certificate No</th>
+                                <th>Title</th>
+                                <th>Issued By</th>
+                                <th>Status</th>
+                                <th class="text-end">Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in recent_certs %}
+                            <tr>
+                                <td class="fw-semibold">
+                                    <a href="{{ url_for('certificates.detail', id=c.Certificate_ID) }}" class="text-decoration-none">
+                                        {{ c.Certificate_Number }}
+                                    </a>
+                                </td>
+                                <td>{{ c.Certificate_Name }}</td>
+                                <td>{{ c.authority.Authority_Name }}</td>
+                                <td>
+                                    {% if c.Status == 'Active' %}
+                                    <span class="badge badge-status-active"><i class="bi bi-check-circle me-1"></i>Active</span>
+                                    {% elif c.Status == 'Expired' %}
+                                    <span class="badge badge-status-expired"><i class="bi bi-clock-history me-1"></i>Expired</span>
+                                    {% else %}
+                                    <span class="badge badge-status-revoked"><i class="bi bi-x-circle me-1"></i>Revoked</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('certificates.detail', id=c.Certificate_ID) }}" class="btn btn-sm btn-outline-secondary py-0 px-2" title="Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('certificates.print_view', id=c.Certificate_ID) }}" target="_blank" class="btn btn-sm btn-outline-info py-0 px-2" title="Print Certificate">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                    {% if c.Certificate_File %}
+                                    <a href="{{ url_for('certificates.download', id=c.Certificate_ID) }}" class="btn btn-sm btn-outline-primary py-0 px-2" title="Download File">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No certificates issued to your account yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications for Student -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <span class="fw-bold"><i class="bi bi-bell text-danger me-2"></i>My Notifications</span>
+                <a href="{{ url_for('notifications.index') }}" class="btn btn-link btn-sm text-decoration-none p-0">All &rarr;</a>
+            </div>
+            <div class="list-group list-group-flush small">
+                {% for n in recent_notifications %}
+                <div class="list-group-item py-3 px-3 {% if n.Status == 'Unread' %}bg-light fw-semibold{% endif %}">
+                    <div>{{ n.Message }}</div>
+                    <small class="text-muted" style="font-size: 0.72rem;">{{ n.Sent_Date.strftime('%d %b %Y, %H:%M') }}</small>
+                </div>
+                {% else %}
+                <div class="list-group-item text-center text-muted py-4">No notifications.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

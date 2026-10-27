@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Certification Summary Report{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Certification Summary & Analytics</h3>
+        <p class="text-muted mb-0">Aggregated breakdown of certificate statuses by category and department</p>
+    </div>
+    <a href="{{ url_for('reports.export_summary') }}" class="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm">
+        <i class="bi bi-file-earmark-spreadsheet"></i> Export Summary (CSV)
+    </a>
+</div>
+
+<!-- High-Level Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-stat-primary">
+            <div class="stat-label">Total Certificates</div>
+            <div class="stat-number">{{ grand_total }}</div>
+            <div class="small opacity-75 mt-1">Across all categories</div>
+            <i class="bi bi-patch-check stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-stat-success">
+            <div class="stat-label">Active & Valid</div>
+            <div class="stat-number">{{ active_total }}</div>
+            <div class="small opacity-75 mt-1">{{ "%.1f"|format((active_total / grand_total * 100) if grand_total else 0) }}% active rate</div>
+            <i class="bi bi-check-circle stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-stat-warning">
+            <div class="stat-label">Expired</div>
+            <div class="stat-number">{{ expired_total }}</div>
+            <div class="small opacity-75 mt-1">Validity elapsed</div>
+            <i class="bi bi-clock-history stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-stat-danger">
+            <div class="stat-label">Revoked</div>
+            <div class="stat-number">{{ revoked_total }}</div>
+            <div class="small opacity-75 mt-1">Cancelled credentials</div>
+            <i class="bi bi-x-octagon stat-icon"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Breakdown by Certificate Type -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <span class="fw-bold"><i class="bi bi-tags text-primary me-2"></i>Summary by Certificate Category</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Category</th>
+                                <th class="text-center text-success">Active</th>
+                                <th class="text-center text-warning">Expired</th>
+                                <th class="text-center text-danger">Revoked</th>
+                                <th class="text-end fw-bold">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in type_stats %}
+                            <tr>
+                                <td class="fw-semibold text-dark">{{ row[0] }}</td>
+                                <td class="text-center"><span class="badge bg-success-subtle text-success border">{{ row[2] or 0 }}</span></td>
+                                <td class="text-center"><span class="badge bg-warning-subtle text-warning border">{{ row[3] or 0 }}</span></td>
+                                <td class="text-center"><span class="badge bg-danger-subtle text-danger border">{{ row[4] or 0 }}</span></td>
+                                <td class="text-end fw-bold">{{ row[1] or 0 }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No data available.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breakdown by Department -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <span class="fw-bold"><i class="bi bi-building text-primary me-2"></i>Summary by Academic Department</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Department</th>
+                                <th class="text-center text-success">Active</th>
+                                <th class="text-center text-warning">Expired</th>
+                                <th class="text-center text-danger">Revoked</th>
+                                <th class="text-end fw-bold">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in dept_stats %}
+                            <tr>
+                                <td class="fw-semibold text-dark">{{ row[0] }}</td>
+                                <td class="text-center"><span class="badge bg-success-subtle text-success border">{{ row[2] or 0 }}</span></td>
+                                <td class="text-center"><span class="badge bg-warning-subtle text-warning border">{{ row[3] or 0 }}</span></td>
+                                <td class="text-center"><span class="badge bg-danger-subtle text-danger border">{{ row[4] or 0 }}</span></td>
+                                <td class="text-end fw-bold">{{ row[1] or 0 }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No data available.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

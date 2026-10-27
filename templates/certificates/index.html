@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Certificates{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">{% if current_user.is_student %}My Academic Certificates{% else %}Certificate Management{% endif %}</h3>
+        <p class="text-muted mb-0">Official academic credentials, verification QR codes, and validity records</p>
+    </div>
+    {% if current_user.is_admin or current_user.is_staff %}
+    <a href="{{ url_for('certificates.add') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+        <i class="bi bi-patch-plus"></i> Issue Certificate
+    </a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <form method="GET" action="{{ url_for('certificates.index') }}" class="row g-2 align-items-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="input-group input-group-sm">
+                    <input type="text" name="search" class="form-control" placeholder="Search number, title, student..." value="{{ search }}">
+                    <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i> Search</button>
+                    {% if search or status_filter or type_id %}
+                    <a href="{{ url_for('certificates.index') }}" class="btn btn-outline-danger" title="Clear filters"><i class="bi bi-x"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">-- All Statuses --</option>
+                    <option value="Active" {% if status_filter == 'Active' %}selected{% endif %}>Active</option>
+                    <option value="Expired" {% if status_filter == 'Expired' %}selected{% endif %}>Expired</option>
+                    <option value="Revoked" {% if status_filter == 'Revoked' %}selected{% endif %}>Revoked</option>
+                </select>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <select name="type_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">-- All Categories --</option>
+                    {% for t in cert_types %}
+                    <option value="{{ t.Type_ID }}" {% if type_id == t.Type_ID %}selected{% endif %}>
+                        {{ t.Type_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>QR</th>
+                        <th>Cert Number</th>
+                        <th>Certificate Title</th>
+                        {% if not current_user.is_student %}
+                        <th>Student Recipient</th>
+                        {% endif %}
+                        <th>Type</th>
+                        <th>Issuing Authority</th>
+                        <th>Issue Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cert in certificates %}
+                    <tr>
+                        <td>
+                            {% if cert.QR_Code %}
+                            <a href="{{ url_for('verify.verify_certificate', certificate_number=cert.Certificate_Number) }}" target="_blank" title="Scan / Public Verify">
+                                <img src="{{ url_for('static', filename=cert.QR_Code) }}" alt="QR" width="36" height="36" class="rounded border p-1 bg-white">
+                            </a>
+                            {% else %}
+                            <i class="bi bi-qr-code text-muted fs-4"></i>
+                            {% endif %}
+                        </td>
+                        <td class="fw-bold">
+                            <a href="{{ url_for('certificates.detail', id=cert.Certificate_ID) }}" class="text-decoration-none">
+                                <code class="text-primary">{{ cert.Certificate_Number }}</code>
+                            </a>
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark">{{ cert.Certificate_Name }}</div>
+                            {% if cert.Grade %}
+                            <small class="text-muted">Grade: <strong>{{ cert.Grade }}</strong></small>
+                            {% endif %}
+                        </td>
+                        {% if not current_user.is_student %}
+                        <td>
+                            <div>{{ cert.student.full_name }}</div>
+                            <small class="text-muted"><code>{{ cert.student.Enrollment_No }}</code></small>
+                        </td>
+                        {% endif %}
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ cert.certificate_type.Type_Name }}</span>
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ cert.authority.Authority_Name }}</small>
+                        </td>
+                        <td>
+                            <div>{{ cert.Issue_Date }}</div>
+                            {% if cert.Expiry_Date %}
+                            <small class="text-muted">Exp: {{ cert.Expiry_Date }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if cert.Status == 'Active' %}
+                            <span class="badge badge-status-active"><i class="bi bi-check-circle me-1"></i>Active</span>
+                            {% elif cert.Status == 'Expired' %}
+                            <span class="badge badge-status-expired"><i class="bi bi-clock-history me-1"></i>Expired</span>
+                            {% else %}
+                            <span class="badge badge-status-revoked"><i class="bi bi-x-circle me-1"></i>Revoked</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('certificates.detail', id=cert.Certificate_ID) }}" class="btn btn-sm btn-outline-secondary py-1 px-2" title="View Detail">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('certificates.print_view', id=cert.Certificate_ID) }}" target="_blank" class="btn btn-sm btn-outline-info py-1 px-2" title="Print Certificate">
+                                <i class="bi bi-printer"></i>
+                            </a>
+                            {% if cert.Certificate_File %}
+                            <a href="{{ url_for('certificates.download', id=cert.Certificate_ID) }}" class="btn btn-sm btn-outline-primary py-1 px-2" title="Download Uploaded File">
+                                <i class="bi bi-download"></i>
+                            </a>
+                            {% endif %}
+                            {% if current_user.is_admin or current_user.is_staff %}
+                            <a href="{{ url_for('certificates.edit', id=cert.Certificate_ID) }}" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if cert.Status == 'Active' %}
+                            <button type="button" class="btn btn-sm btn-outline-warning py-1 px-2" 
+                                    data-bs-toggle="modal" data-bs-target="#revokeModal"
+                                    data-action="{{ url_for('certificates.revoke', id=cert.Certificate_ID) }}"
+                                    data-cert-no="{{ cert.Certificate_Number }}"
+                                    title="Revoke Certificate">
+                                <i class="bi bi-x-octagon"></i>
+                            </button>
+                            {% endif %}
+                            {% endif %}
+                            {% if current_user.is_admin %}
+                            <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" 
+                                    data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"
+                                    data-action="{{ url_for('certificates.delete', id=cert.Certificate_ID) }}"
+                                    data-item-name="Certificate '{{ cert.Certificate_Number }}'"
+                                    title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                            No certificates found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if pagination and pagination.pages > 1 %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-2">
+        <small class="text-muted">Showing page {{ pagination.page }} of {{ pagination.pages }}</small>
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+                {% if pagination.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('certificates.index', page=pagination.prev_num, search=search, status=status_filter, type_id=type_id) }}">Previous</a></li>
+                {% endif %}
+                {% for p in pagination.iter_pages() %}
+                {% if p %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('certificates.index', page=p, search=search, status=status_filter, type_id=type_id) }}">{{ p }}</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('certificates.index', page=pagination.next_num, search=search, status=status_filter, type_id=type_id) }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

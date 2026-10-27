@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Certificate{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-patch-check text-primary me-2"></i>{{ action }} Certificate
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <!-- Certificate Identifier & Title -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="certificate_number" class="form-label required-star">Certificate Number *</label>
+                            <input type="text" class="form-control" id="certificate_number" name="certificate_number" 
+                                   value="{{ cert.Certificate_Number if cert else (suggested_no or '') }}" 
+                                   required maxlength="30" placeholder="e.g. KKW-2026-00001">
+                            <div class="form-text">Unique alphanumeric certificate identifier.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="certificate_name" class="form-label required-star">Certificate Title / Name *</label>
+                            <input type="text" class="form-control" id="certificate_name" name="certificate_name" 
+                                   value="{{ cert.Certificate_Name if cert else '' }}" 
+                                   required maxlength="150" placeholder="e.g. Diploma in Computer Technology">
+                        </div>
+                    </div>
+
+                    <!-- Foreign Key Dropdowns -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-12">
+                            <label for="student_id" class="form-label required-star">Student Recipient *</label>
+                            <select class="form-select" id="student_id" name="student_id" required>
+                                <option value="">-- Select Student Candidate --</option>
+                                {% for s in students %}
+                                <option value="{{ s.Student_ID }}" 
+                                        {% if cert and cert.Student_ID == s.Student_ID %}selected{% endif %}>
+                                    {{ s.full_name }} (Enrollment: {{ s.Enrollment_No }}) - {{ s.department.Department_Name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="type_id" class="form-label required-star">Certificate Type / Category *</label>
+                            <select class="form-select" id="type_id" name="type_id" required>
+                                <option value="">-- Select Certificate Type --</option>
+                                {% for t in types %}
+                                <option value="{{ t.Type_ID }}" 
+                                        {% if cert and cert.Type_ID == t.Type_ID %}selected{% endif %}>
+                                    {{ t.Type_Name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="authority_id" class="form-label required-star">Issuing Authority *</label>
+                            <select class="form-select" id="authority_id" name="authority_id" required>
+                                <option value="">-- Select Issuing Authority --</option>
+                                {% for auth in authorities %}
+                                <option value="{{ auth.Authority_ID }}" 
+                                        {% if cert and cert.Authority_ID == auth.Authority_ID %}selected{% endif %}>
+                                    {{ auth.Authority_Name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dates and Grade -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label for="issue_date" class="form-label required-star">Issue Date *</label>
+                            <input type="date" class="form-control" id="issue_date" name="issue_date" 
+                                   value="{{ cert.Issue_Date.strftime('%Y-%m-%d') if cert else now.strftime('%Y-%m-%d') }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="expiry_date" class="form-label">Expiry Date (Optional)</label>
+                            <input type="date" class="form-control" id="expiry_date" name="expiry_date" 
+                                   value="{{ cert.Expiry_Date.strftime('%Y-%m-%d') if (cert and cert.Expiry_Date) else '' }}">
+                            <div class="form-text">Leave blank for lifetime credentials.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="grade" class="form-label">Grade / Performance</label>
+                            <input type="text" class="form-control" id="grade" name="grade" 
+                                   value="{{ cert.Grade if cert else '' }}" 
+                                   maxlength="10" placeholder="e.g. Distinction, A+, First Class">
+                        </div>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="mb-3 mt-4 pt-3 border-top">
+                        <label for="certificate_file" class="form-label">
+                            <i class="bi bi-cloud-arrow-up me-1 text-primary"></i>Upload Certificate File (PDF / Image)
+                        </label>
+                        <input type="file" class="form-control" id="certificate_file" name="certificate_file" accept=".pdf,.png,.jpg,.jpeg">
+                        <div class="form-text">Allowed formats: PDF, PNG, JPG, JPEG (Max: 16 MB).</div>
+
+                        {% if cert and cert.Certificate_File %}
+                        <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center justify-content-between small">
+                            <span><i class="bi bi-file-earmark-check text-success me-2"></i>Current File: <code>{{ cert.Certificate_File }}</code></span>
+                            <a href="{{ url_for('certificates.download', id=cert.Certificate_ID) }}" class="btn btn-sm btn-outline-primary py-0">Download</a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a href="{{ url_for('certificates.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-1"></i> Save Certificate
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

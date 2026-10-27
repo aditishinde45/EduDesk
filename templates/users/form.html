@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} User Account{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-person-gear text-primary me-2"></i>{{ action }} User Account
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label required-star">Username *</label>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               value="{{ user.Username if user else '' }}" 
+                               required maxlength="50" placeholder="e.g. jdoe">
+                    </div>
+
+                    {% if action == 'Add' %}
+                    <div class="mb-3">
+                        <label for="password" class="form-label required-star">Password *</label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               required minlength="6" placeholder="At least 6 characters">
+                        <div class="form-text">Will be securely hashed before saving in database.</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="role" class="form-label required-star">User Role *</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="">-- Select Access Role --</option>
+                            <option value="Admin" {% if user and user.Role == 'Admin' %}selected{% endif %}>
+                                Admin (Full CRUD, Manage Users, Audit Logs)
+                            </option>
+                            <option value="Staff" {% if user and user.Role == 'Staff' %}selected{% endif %}>
+                                Staff (Academic Read, Student/Cert Full CRUD, Reports)
+                            </option>
+                            <option value="Student" {% if user and user.Role == 'Student' %}selected{% endif %}>
+                                Student (Read own profile & own certificates only)
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ user.Email if user else '' }}" 
+                               maxlength="100" placeholder="e.g. user@kkwagh.edu.in">
+                    </div>
+
+                    <div class="mb-3" id="student_link_group">
+                        <label for="student_id" class="form-label">Link to Student Candidate (Optional)</label>
+                        <select class="form-select" id="student_id" name="student_id">
+                            <option value="">-- No Linked Student --</option>
+                            {% for s in students %}
+                            <option value="{{ s.Student_ID }}" 
+                                    {% if user and user.Student_ID == s.Student_ID %}selected{% endif %}>
+                                {{ s.full_name }} ({{ s.Enrollment_No }}) - {{ s.department.Department_Name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Used for automatic profile & certificate isolation when Role is Student.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a href="{{ url_for('users.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-1"></i> Save User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

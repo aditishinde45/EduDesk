@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Audit Logs{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">System Audit Trail</h3>
+        <p class="text-muted mb-0">Immutable tracking of logins, logouts, certificate issuance, and data modifications</p>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <form method="GET" action="{{ url_for('audit.index') }}" class="row g-2 align-items-center">
+            <div class="col-md-4 col-lg-3">
+                <input type="text" name="search" class="form-control form-control-sm" placeholder="Search action or IP..." value="{{ search }}">
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <select name="user_id" class="form-select form-select-sm">
+                    <option value="">-- All Users --</option>
+                    {% for u in users %}
+                    <option value="{{ u.User_ID }}" {% if selected_user_id == u.User_ID %}selected{% endif %}>
+                        {{ u.Username }} ({{ u.Role }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 col-lg-2">
+                <input type="date" name="date_from" class="form-control form-control-sm" value="{{ date_from }}" title="Date From">
+            </div>
+            <div class="col-md-2 col-lg-2">
+                <input type="date" name="date_to" class="form-control form-control-sm" value="{{ date_to }}" title="Date To">
+            </div>
+            <div class="col-md-1 col-lg-2 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i> Filter</button>
+                {% if search or selected_user_id or date_from or date_to %}
+                <a href="{{ url_for('audit.index') }}" class="btn btn-outline-danger btn-sm" title="Clear"><i class="bi bi-x"></i></a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Log ID</th>
+                        <th>Timestamp (UTC)</th>
+                        <th>User Account</th>
+                        <th>Recorded Action</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td class="text-muted fw-bold">#{{ log.Log_ID }}</td>
+                        <td class="text-muted small">
+                            <i class="bi bi-clock me-1"></i>{{ log.Timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                        </td>
+                        <td>
+                            {% if log.user %}
+                            <span class="badge bg-secondary-subtle text-secondary border">
+                                <i class="bi bi-person me-1"></i>{{ log.user.Username }} ({{ log.user.Role }})
+                            </span>
+                            {% else %}
+                            <span class="badge bg-light text-muted border">System</span>
+                            {% endif %}
+                        </td>
+                        <td class="fw-medium text-dark">{{ log.Action }}</td>
+                        <td>
+                            <code class="text-muted small">{{ log.IP_Address or '127.0.0.1' }}</code>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <i class="bi bi-journal-check fs-2 d-block mb-2 text-secondary"></i>
+                            No audit log records found matching your filters.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if pagination and pagination.pages > 1 %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-2">
+        <small class="text-muted">Showing page {{ pagination.page }} of {{ pagination.pages }}</small>
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+                {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('audit.index', page=pagination.prev_num, search=search, user_id=selected_user_id, date_from=date_from, date_to=date_to) }}">Previous</a>
+                </li>
+                {% endif %}
+                {% for p in pagination.iter_pages() %}
+                {% if p %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('audit.index', page=p, search=search, user_id=selected_user_id, date_from=date_from, date_to=date_to) }}">{{ p }}</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('audit.index', page=pagination.next_num, search=search, user_id=selected_user_id, date_from=date_from, date_to=date_to) }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

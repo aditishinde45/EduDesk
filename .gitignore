@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Environment Variables (Keep credentials private)
+.env
+
+# Uploads (Keep sample file, ignore transient uploads)
+static/uploads/certificates/*
+!static/uploads/certificates/sample_diploma_kkw.pdf
+
+# IDE and OS artifacts
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo

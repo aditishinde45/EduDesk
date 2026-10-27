@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Department{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-building text-primary me-2"></i>{{ action }} Department
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="mb-3">
+                        <label for="department_name" class="form-label required-star">Department Name *</label>
+                        <input type="text" class="form-control" id="department_name" name="department_name" 
+                               value="{{ department.Department_Name if department else '' }}" 
+                               required maxlength="100" placeholder="e.g. Computer Technology">
+                        <div class="form-text">Must be unique within the institute.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="hod_name" class="form-label">Head of Department (HOD)</label>
+                        <input type="text" class="form-control" id="hod_name" name="hod_name" 
+                               value="{{ department.HOD_Name if department else '' }}" 
+                               maxlength="100" placeholder="e.g. Prof. R. S. Patil">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Department Email</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ department.Email if department else '' }}" 
+                               maxlength="100" placeholder="e.g. hod_computer@kkwagh.edu.in">
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{{ url_for('departments.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-1"></i> Save Department
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Notifications Center</h3>
+        <p class="text-muted mb-0">System alerts, certificate issuance updates, and expiry reminders</p>
+    </div>
+    <div class="d-flex gap-2">
+        {% if current_user.is_admin %}
+            {% if view_all %}
+            <a href="{{ url_for('notifications.index', all=0) }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-person me-1"></i> View Only My Notifications
+            </a>
+            {% else %}
+            <a href="{{ url_for('notifications.index', all=1) }}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-people me-1"></i> View All System Notifications
+            </a>
+            {% endif %}
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('notifications.mark_all_read') }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline-success btn-sm">
+                <i class="bi bi-check2-all me-1"></i> Mark All as Read
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            {% for n in notifications %}
+            <div class="list-group-item p-3 d-flex justify-content-between align-items-center {% if n.Status == 'Unread' %}bg-light border-start border-4 border-primary{% endif %}">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="mt-1">
+                        {% if n.Status == 'Unread' %}
+                        <i class="bi bi-bell-fill text-danger fs-5"></i>
+                        {% else %}
+                        <i class="bi bi-bell text-muted fs-5"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="{% if n.Status == 'Unread' %}fw-bold text-dark{% else %}text-secondary{% endif %}">
+                            {{ n.Message }}
+                        </div>
+                        <small class="text-muted" style="font-size: 0.78rem;">
+                            <i class="bi bi-clock me-1"></i>{{ n.Sent_Date.strftime('%d %B %Y, %H:%M') }}
+                            {% if current_user.is_admin and view_all %}
+                            <span class="ms-2 badge bg-secondary">User: {{ n.user.Username if n.user else 'System' }}</span>
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+
+                <div>
+                    {% if n.Status == 'Unread' %}
+                    <form method="POST" action="{{ url_for('notifications.mark_read', id=n.Notification_ID) }}" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Mark as read">
+                            <i class="bi bi-check-lg"></i>
+                        </button>
+                    </form>
+                    {% else %}
+                    <span class="badge bg-light text-muted border">Read</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-bell-slash fs-2 d-block mb-2 text-secondary"></i>
+                You have no notifications at this time.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if pagination and pagination.pages > 1 %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-2">
+        <small class="text-muted">Showing page {{ pagination.page }} of {{ pagination.pages }}</small>
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+                {% if pagination.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('notifications.index', page=pagination.prev_num, all=1 if view_all else 0) }}">Previous</a></li>
+                {% endif %}
+                {% for p in pagination.iter_pages() %}
+                {% if p %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('notifications.index', page=p, all=1 if view_all else 0) }}">{{ p }}</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('notifications.index', page=pagination.next_num, all=1 if view_all else 0) }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

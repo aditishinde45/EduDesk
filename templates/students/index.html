@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Student Directory</h3>
+        <p class="text-muted mb-0">Enrolled candidates, academic programs, and verified profile records</p>
+    </div>
+    {% if current_user.is_admin or current_user.is_staff %}
+    <a href="{{ url_for('students.add') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+        <i class="bi bi-person-plus"></i> Register Student
+    </a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <form method="GET" action="{{ url_for('students.index') }}" class="row g-2 align-items-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="input-group input-group-sm">
+                    <input type="text" name="search" class="form-control" placeholder="Search by name, enroll no, email..." value="{{ search }}">
+                    <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i> Search</button>
+                    {% if search or selected_dept_id %}
+                    <a href="{{ url_for('students.index') }}" class="btn btn-outline-danger" title="Clear filters"><i class="bi bi-x"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <select name="department_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">-- All Departments --</option>
+                    {% for d in departments %}
+                    <option value="{{ d.Department_ID }}" {% if selected_dept_id == d.Department_ID %}selected{% endif %}>
+                        {{ d.Department_Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Enrollment No</th>
+                        <th>Student Name</th>
+                        <th>DOB / Age (Derived)</th>
+                        <th>Program / Department</th>
+                        <th>Batch</th>
+                        <th>Contact Phones</th>
+                        <th>Certs</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr>
+                        <td class="fw-bold">
+                            <a href="{{ url_for('students.detail', id=s.Student_ID) }}" class="text-decoration-none">
+                                <code class="text-primary">{{ s.Enrollment_No }}</code>
+                            </a>
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark">{{ s.full_name }}</div>
+                            {% if s.Email %}
+                            <small class="text-muted"><i class="bi bi-envelope me-1"></i>{{ s.Email }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div>
+                                <small class="text-muted d-block">{{ s.Date_of_Birth or 'N/A' }}</small>
+                                {% if s.age is not none %}
+                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle" title="Derived Attribute calculated from DOB">
+                                    <i class="bi bi-calculator me-1"></i>{{ s.age }} yrs
+                                </span>
+                                {% else %}
+                                <span class="text-muted small">--</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-medium">{{ s.course.Course_Name }}</div>
+                            <small class="text-muted">{{ s.department.Department_Name }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ s.Batch_Year or 'N/A' }}</span>
+                        </td>
+                        <td>
+                            {% if s.phones %}
+                                {% for p in s.phones %}
+                                <span class="badge bg-light text-dark border me-1 mb-1">
+                                    <i class="bi bi-telephone me-1 text-secondary"></i>{{ p.Phone_No }}
+                                </span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted small">None</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border">{{ s.certificates|length }}</span>
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('students.detail', id=s.Student_ID) }}" class="btn btn-sm btn-outline-info py-1 px-2" title="View Profile">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if current_user.is_admin or current_user.is_staff %}
+                            <a href="{{ url_for('students.edit', id=s.Student_ID) }}" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% endif %}
+                            {% if current_user.is_admin %}
+                            <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" 
+                                    data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"
+                                    data-action="{{ url_for('students.delete', id=s.Student_ID) }}"
+                                    data-item-name="Student '{{ s.full_name }}' ({{ s.Enrollment_No }})"
+                                    title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                            No students found matching your criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if pagination and pagination.pages > 1 %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-2">
+        <small class="text-muted">Showing page {{ pagination.page }} of {{ pagination.pages }}</small>
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+                {% if pagination.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('students.index', page=pagination.prev_num, search=search, department_id=selected_dept_id) }}">Previous</a></li>
+                {% endif %}
+                {% for p in pagination.iter_pages() %}
+                {% if p %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('students.index', page=p, search=search, department_id=selected_dept_id) }}">{{ p }}</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('students.index', page=pagination.next_num, search=search, department_id=selected_dept_id) }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Course{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-book text-primary me-2"></i>{{ action }} Course
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="mb-3">
+                        <label for="course_name" class="form-label required-star">Course Name *</label>
+                        <input type="text" class="form-control" id="course_name" name="course_name" 
+                               value="{{ course.Course_Name if course else '' }}" 
+                               required maxlength="100" placeholder="e.g. Diploma in Computer Technology">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duration</label>
+                        <input type="text" class="form-control" id="duration" name="duration" 
+                               value="{{ course.Duration if course else '' }}" 
+                               maxlength="30" placeholder="e.g. 3 Years, 6 Semesters">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="department_id" class="form-label required-star">Department *</label>
+                        <select class="form-select" id="department_id" name="department_id" required>
+                            <option value="">-- Select Offering Department --</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.Department_ID }}" 
+                                    {% if course and course.Department_ID == dept.Department_ID %}selected{% endif %}>
+                                {{ dept.Department_Name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{{ url_for('courses.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-1"></i> Save Course
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

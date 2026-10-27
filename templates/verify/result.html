@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Verification: {{ certificate_number }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-lg-9 col-xl-8">
+        {% if cert %}
+            <!-- Found: Status Banner -->
+            {% if cert.Status == 'Active' %}
+            <div class="card shadow-sm border-0 border-top border-5 border-success mb-4 text-center p-4">
+                <div class="display-4 text-success mb-2">
+                    <i class="bi bi-patch-check-fill"></i>
+                </div>
+                <h3 class="fw-bold text-success mb-1">VALID & GENUINE CERTIFICATE</h3>
+                <p class="text-muted mb-0">This credential is authenticated and currently valid in the official institute registry.</p>
+            </div>
+            {% elif cert.Status == 'Expired' %}
+            <div class="card shadow-sm border-0 border-top border-5 border-warning mb-4 text-center p-4">
+                <div class="display-4 text-warning mb-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <h3 class="fw-bold text-warning mb-1">EXPIRED CERTIFICATE</h3>
+                <p class="text-muted mb-0">This certificate was genuine, but its designated validity period elapsed on <strong>{{ cert.Expiry_Date }}</strong>.</p>
+            </div>
+            {% else %}
+            <div class="card shadow-sm border-0 border-top border-5 border-danger mb-4 text-center p-4">
+                <div class="display-4 text-danger mb-2">
+                    <i class="bi bi-x-octagon-fill"></i>
+                </div>
+                <h3 class="fw-bold text-danger mb-1">REVOKED / INVALID CERTIFICATE</h3>
+                <p class="text-muted mb-2">This credential has been officially <strong>REVOKED</strong> and is no longer valid.</p>
+                {% if cert.latest_revocation %}
+                <div class="alert alert-danger d-inline-block text-start p-3 my-2 small">
+                    <div><strong>Revocation Date:</strong> {{ cert.latest_revocation.Revoked_Date }}</div>
+                    <div><strong>Reason for Revocation:</strong> {{ cert.latest_revocation.Reason }}</div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Details Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small">Certificate Number:</span>
+                        <h5 class="fw-bold mb-0 text-primary"><code>{{ cert.Certificate_Number }}</code></h5>
+                    </div>
+                    <div>
+                        <span class="badge bg-light text-dark border px-3 py-2">
+                            <i class="bi bi-tag me-1"></i>{{ cert.certificate_type.Type_Name }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-8">
+                            <h4 class="fw-bold text-dark mb-3">{{ cert.Certificate_Name }}</h4>
+
+                            <table class="table table-sm table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted" style="width: 38%;">Candidate Name:</td>
+                                        <td class="fw-bold text-dark">{{ cert.student.full_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Enrollment Number:</td>
+                                        <td><code>{{ cert.student.Enrollment_No }}</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Department:</td>
+                                        <td class="fw-semibold">{{ cert.student.department.Department_Name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Course / Program:</td>
+                                        <td class="fw-semibold">{{ cert.student.course.Course_Name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Issuing Authority:</td>
+                                        <td><strong>{{ cert.authority.Authority_Name }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Issue Date:</td>
+                                        <td>{{ cert.Issue_Date.strftime('%d %B %Y') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Expiry Date:</td>
+                                        <td>{{ cert.Expiry_Date.strftime('%d %B %Y') if cert.Expiry_Date else 'Lifetime' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Awarded Grade:</td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">{{ cert.Grade or 'Satisfactory' }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="col-md-4 text-center border-start ps-md-4">
+                            {% if cert.QR_Code %}
+                            <div class="p-3 bg-white border rounded shadow-sm d-inline-block mb-2">
+                                <img src="{{ url_for('static', filename=cert.QR_Code) }}" alt="QR Code" width="160" height="160" class="img-fluid">
+                            </div>
+                            <div class="small text-muted">Verification QR Code</div>
+                            {% endif %}
+
+                            <div class="p-3 bg-light rounded border mt-3 text-start small">
+                                <div class="fw-bold text-primary mb-1">
+                                    <i class="bi bi-shield-check me-1"></i>Official Seal
+                                </div>
+                                <div>K. K. Wagh Polytechnic, Nashik</div>
+                                <div class="text-muted">Approved Database Record</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center py-3">
+                    <a href="{{ url_for('verify.search') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-search me-1"></i> Verify Another Certificate
+                    </a>
+                    {% if current_user.is_authenticated and (current_user.is_admin or current_user.is_staff or (current_user.is_student and current_user.Student_ID == cert.Student_ID)) %}
+                    <a href="{{ url_for('certificates.detail', id=cert.Certificate_ID) }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Open Portal View
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <!-- Not Found Card -->
+            <div class="card shadow-sm border-0 border-top border-5 border-danger text-center p-5 mb-4">
+                <div class="display-3 text-danger mb-3">
+                    <i class="bi bi-shield-x"></i>
+                </div>
+                <h3 class="fw-bold text-danger mb-2">NO RECORD FOUND</h3>
+                <p class="text-muted mb-4">
+                    The certificate number <code>{{ certificate_number }}</code> could not be found in the official institutional records of K. K. Wagh Polytechnic, Nashik.
+                </p>
+                <div class="alert alert-warning py-3 mx-auto text-start small" style="max-width: 500px;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <strong>Important Note:</strong> Please ensure the number was entered exactly as shown on the document. If you believe this is an administrative omission, please contact the examination department.
+                </div>
+                <div class="mt-4">
+                    <a href="{{ url_for('verify.search') }}" class="btn btn-primary px-4">
+                        <i class="bi bi-arrow-left me-1"></i> Try Again
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

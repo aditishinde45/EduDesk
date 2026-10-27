@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Revocations{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Revocation Register</h3>
+        <p class="text-muted mb-0">Official log of cancelled or invalidated credentials (WEAK Entity: Revocation)</p>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <form method="GET" action="{{ url_for('revocations.index') }}" class="row g-2 align-items-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="input-group input-group-sm">
+                    <input type="text" name="search" class="form-control" placeholder="Search cert number, student, reason..." value="{{ search }}">
+                    <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i> Search</button>
+                    {% if search %}
+                    <a href="{{ url_for('revocations.index') }}" class="btn btn-outline-danger" title="Clear search"><i class="bi bi-x"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Revocation #</th>
+                        <th>Certificate Number</th>
+                        <th>Certificate Title</th>
+                        <th>Student Recipient</th>
+                        <th>Revoked Date</th>
+                        <th>Revocation Reason</th>
+                        <th>Revoked By</th>
+                        <th class="text-end">Certificate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in revocations %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                Revocation #{{ r.Revocation_No }}
+                            </span>
+                        </td>
+                        <td class="fw-bold">
+                            <a href="{{ url_for('certificates.detail', id=r.certificate.Certificate_ID) }}" class="text-decoration-none">
+                                <code class="text-danger">{{ r.certificate.Certificate_Number }}</code>
+                            </a>
+                        </td>
+                        <td>{{ r.certificate.Certificate_Name }}</td>
+                        <td>
+                            <div>{{ r.certificate.student.full_name }}</div>
+                            <small class="text-muted"><code>{{ r.certificate.student.Enrollment_No }}</code></small>
+                        </td>
+                        <td class="text-muted">{{ r.Revoked_Date }}</td>
+                        <td class="fw-medium text-dark">{{ r.Reason }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ r.user.Username if r.user else 'System' }}</span>
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('certificates.detail', id=r.certificate.Certificate_ID) }}" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Inspect Certificate">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="bi bi-shield-check fs-2 d-block mb-2 text-success"></i>
+                            No revocation records found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if pagination and pagination.pages > 1 %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-2">
+        <small class="text-muted">Showing page {{ pagination.page }} of {{ pagination.pages }}</small>
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+                {% if pagination.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('revocations.index', page=pagination.prev_num, search=search) }}">Previous</a></li>
+                {% endif %}
+                {% for p in pagination.iter_pages() %}
+                {% if p %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('revocations.index', page=p, search=search) }}">{{ p }}</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('revocations.index', page=pagination.next_num, search=search) }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
