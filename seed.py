@@ -12,7 +12,7 @@ def seed_database():
     app = create_app()
 
     with app.app_context():
-        print("🌱 Seeding EduDesk database...")
+        print("🌱 Seeding EduDesk database with rich dummy data...")
 
         # Clear existing data cleanly in reverse FK dependency order
         Revocation.query.delete()
@@ -30,7 +30,7 @@ def seed_database():
         db.session.commit()
 
         # ---------------------------------------------------------------------
-        # 1. Departments (3)
+        # 1. Departments (6)
         # ---------------------------------------------------------------------
         dept_cm = Department(
             Department_Name="Computer Technology",
@@ -47,11 +47,26 @@ def seed_database():
             HOD_Name="Prof. V. K. Jadhav",
             Email="hod_entc@kkwagh.edu.in"
         )
-        db.session.add_all([dept_cm, dept_it, dept_entc])
+        dept_mech = Department(
+            Department_Name="Mechanical Engineering",
+            HOD_Name="Prof. R. D. Bhamare",
+            Email="hod_mech@kkwagh.edu.in"
+        )
+        dept_civil = Department(
+            Department_Name="Civil Engineering",
+            HOD_Name="Prof. N. S. Gaikwad",
+            Email="hod_civil@kkwagh.edu.in"
+        )
+        dept_aids = Department(
+            Department_Name="Artificial Intelligence & Data Science",
+            HOD_Name="Prof. A. R. Kulkarni",
+            Email="hod_aids@kkwagh.edu.in"
+        )
+        db.session.add_all([dept_cm, dept_it, dept_entc, dept_mech, dept_civil, dept_aids])
         db.session.flush()
 
         # ---------------------------------------------------------------------
-        # 2. Courses (5)
+        # 2. Courses (10)
         # ---------------------------------------------------------------------
         course_cm = Course(
             Course_Name="Diploma in Computer Technology",
@@ -78,11 +93,40 @@ def seed_database():
             Duration="3 Years",
             Department_ID=dept_entc.Department_ID
         )
-        db.session.add_all([course_cm, course_aiml, course_it, course_cloud, course_entc])
+        course_vlsi = Course(
+            Course_Name="Diploma in VLSI & Embedded Systems",
+            Duration="1.5 Years",
+            Department_ID=dept_entc.Department_ID
+        )
+        course_mech = Course(
+            Course_Name="Diploma in Mechanical Engineering",
+            Duration="3 Years",
+            Department_ID=dept_mech.Department_ID
+        )
+        course_mecha = Course(
+            Course_Name="Diploma in Mechatronics & Automation",
+            Duration="2 Years",
+            Department_ID=dept_mech.Department_ID
+        )
+        course_civil = Course(
+            Course_Name="Diploma in Civil Engineering",
+            Duration="3 Years",
+            Department_ID=dept_civil.Department_ID
+        )
+        course_aids = Course(
+            Course_Name="Diploma in AI & Data Science",
+            Duration="3 Years",
+            Department_ID=dept_aids.Department_ID
+        )
+        db.session.add_all([
+            course_cm, course_aiml, course_it, course_cloud,
+            course_entc, course_vlsi, course_mech, course_mecha,
+            course_civil, course_aids
+        ])
         db.session.flush()
 
         # ---------------------------------------------------------------------
-        # 3. Certificate Types (4)
+        # 3. Certificate Types (6)
         # ---------------------------------------------------------------------
         type_diploma = CertificateType(
             Type_Name="Diploma Certificate",
@@ -100,11 +144,19 @@ def seed_database():
             Type_Name="Project Excellence",
             Description="Awarded for outstanding technical capstone projects, research, and engineering innovations."
         )
-        db.session.add_all([type_diploma, type_merit, type_course, type_project])
+        type_internship = CertificateType(
+            Type_Name="Industrial Internship",
+            Description="Validating completion of mandatory industrial in-plant internship and practical training."
+        )
+        type_symposium = CertificateType(
+            Type_Name="Technical Symposium Award",
+            Description="Recognizing excellence in national technical paper presentations and hackathons."
+        )
+        db.session.add_all([type_diploma, type_merit, type_course, type_project, type_internship, type_symposium])
         db.session.flush()
 
         # ---------------------------------------------------------------------
-        # 4. Issuing Authorities (2) & Phones
+        # 4. Issuing Authorities (3) & Phones
         # ---------------------------------------------------------------------
         auth_msbte = IssuingAuthority(
             Authority_Name="Maharashtra State Board of Technical Education (MSBTE)",
@@ -128,7 +180,18 @@ def seed_database():
             State="Maharashtra",
             Pincode="422003"
         )
-        db.session.add_all([auth_msbte, auth_kkw])
+        auth_dte = IssuingAuthority(
+            Authority_Name="Directorate of Technical Education (DTE), Maharashtra",
+            Registration_No="DTE-MAH-1960",
+            Email="desk3@dtemaharashtra.gov.in",
+            Website="https://dtemaharashtra.gov.in",
+            House_no="3",
+            Street="Mahapalika Marg, Dhobi Talao",
+            City="Mumbai",
+            State="Maharashtra",
+            Pincode="400001"
+        )
+        db.session.add_all([auth_msbte, auth_kkw, auth_dte])
         db.session.flush()
 
         # Authority Phones
@@ -136,12 +199,14 @@ def seed_database():
             AuthorityPhone(Authority_ID=auth_msbte.Authority_ID, Phone_No="02226471255"),
             AuthorityPhone(Authority_ID=auth_msbte.Authority_ID, Phone_No="02226470916"),
             AuthorityPhone(Authority_ID=auth_kkw.Authority_ID, Phone_No="02532512876"),
-            AuthorityPhone(Authority_ID=auth_kkw.Authority_ID, Phone_No="02532512867")
+            AuthorityPhone(Authority_ID=auth_kkw.Authority_ID, Phone_No="02532512867"),
+            AuthorityPhone(Authority_ID=auth_dte.Authority_ID, Phone_No="02222620601"),
+            AuthorityPhone(Authority_ID=auth_dte.Authority_ID, Phone_No="02222644832")
         ]
         db.session.add_all(auth_phones)
 
         # ---------------------------------------------------------------------
-        # 5. Students (10) & Student Phones
+        # 5. Students (20) & Student Phones
         # ---------------------------------------------------------------------
         students_data = [
             ("Aditi", "Shinde", "aditi.shinde@kkwagh.edu.in", "2200490001", datetime.date(2004, 5, 14), 2025, "Flat 302", "Gangapur Road", "Nashik", "Maharashtra", "422005", dept_cm.Department_ID, course_cm.Course_ID, ["9823012345", "9823012346"]),
@@ -153,7 +218,17 @@ def seed_database():
             ("Pooja", "Gaikwad", "pooja.gaikwad@kkwagh.edu.in", "2200490007", datetime.date(2004, 12, 3), 2025, "Shree Niwas", "Ambad Link Road", "Nashik", "Maharashtra", "422010", dept_cm.Department_ID, course_cm.Course_ID, ["9823078901"]),
             ("Sanket", "Wagh", "sanket.wagh@kkwagh.edu.in", "2200490008", datetime.date(2003, 6, 30), 2025, "C-204", "Amrutdham", "Nashik", "Maharashtra", "422003", dept_it.Department_ID, course_it.Course_ID, ["9823089012"]),
             ("Tanvi", "More", "tanvi.more@kkwagh.edu.in", "2200490009", datetime.date(2004, 7, 22), 2025, "Sneh Residency", "Upnagar", "Nashik", "Maharashtra", "422006", dept_entc.Department_ID, course_entc.Course_ID, ["9823090123"]),
-            ("Yash", "Bhamare", "yash.bhamare@kkwagh.edu.in", "2200490010", datetime.date(2003, 1, 15), 2025, "7/Om Apt", "Satpur Colony", "Nashik", "Maharashtra", "422007", dept_cm.Department_ID, course_aiml.Course_ID, ["9823001234"])
+            ("Yash", "Bhamare", "yash.bhamare@kkwagh.edu.in", "2200490010", datetime.date(2003, 1, 15), 2025, "7/Om Apt", "Satpur Colony", "Nashik", "Maharashtra", "422007", dept_cm.Department_ID, course_aiml.Course_ID, ["9823001234"]),
+            ("Sakshi", "Kale", "sakshi.kale@kkwagh.edu.in", "2200490011", datetime.date(2004, 3, 10), 2025, "Bunglow 9", "Mahatmanagar", "Nashik", "Maharashtra", "422007", dept_mech.Department_ID, course_mech.Course_ID, ["9823011223"]),
+            ("Omkar", "Shinde", "omkar.shinde@kkwagh.edu.in", "2200490012", datetime.date(2003, 10, 5), 2025, "Flat 101", "Anandwalli", "Nashik", "Maharashtra", "422013", dept_mech.Department_ID, course_mech.Course_ID, ["9823022334"]),
+            ("Shruti", "Jagtap", "shruti.jagtap@kkwagh.edu.in", "2200490013", datetime.date(2004, 8, 19), 2025, "Plot 14", "Rane Nagar", "Nashik", "Maharashtra", "422009", dept_civil.Department_ID, course_civil.Course_ID, ["9823033445"]),
+            ("Tejas", "Bagul", "tejas.bagul@kkwagh.edu.in", "2200490014", datetime.date(2003, 5, 27), 2025, "22/D", "Cidco New Nashik", "Nashik", "Maharashtra", "422009", dept_civil.Department_ID, course_civil.Course_ID, ["9823044556"]),
+            ("Rutuja", "Nikam", "rutuja.nikam@kkwagh.edu.in", "2200490015", datetime.date(2004, 11, 11), 2025, "Shanti Park", "Jail Road", "Nashik", "Maharashtra", "422101", dept_aids.Department_ID, course_aids.Course_ID, ["9823055667"]),
+            ("Sahil", "Sonawane", "sahil.sonawane@kkwagh.edu.in", "2200490016", datetime.date(2003, 9, 2), 2025, "5/Prabhat", "Mhasrul", "Nashik", "Maharashtra", "422004", dept_aids.Department_ID, course_aids.Course_ID, ["9823066778"]),
+            ("Mansi", "Wagh", "mansi.wagh@kkwagh.edu.in", "2200490017", datetime.date(2004, 4, 16), 2025, "Sai Krupa", "Adgaon Naka", "Nashik", "Maharashtra", "422003", dept_entc.Department_ID, course_vlsi.Course_ID, ["9823077889"]),
+            ("Kunal", "Khairnar", "kunal.khairnar@kkwagh.edu.in", "2200490018", datetime.date(2003, 12, 8), 2025, "B-5", "Trimurti Chowk", "Nashik", "Maharashtra", "422008", dept_mech.Department_ID, course_mecha.Course_ID, ["9823088990"]),
+            ("Neha", "Gangurde", "neha.gangurde@kkwagh.edu.in", "2200490019", datetime.date(2004, 6, 21), 2025, "18/Krishna", "Pathardi Phata", "Nashik", "Maharashtra", "422010", dept_it.Department_ID, course_cloud.Course_ID, ["9823099001"]),
+            ("Parth", "Salunke", "parth.salunke@kkwagh.edu.in", "2200490020", datetime.date(2003, 2, 14), 2025, "402/Silver", "Dwarka Circle", "Nashik", "Maharashtra", "422011", dept_cm.Department_ID, course_cm.Course_ID, ["9823000112"])
         ]
 
         created_students = []
@@ -181,13 +256,13 @@ def seed_database():
                 db.session.add(StudentPhone(Student_ID=stud.Student_ID, Phone_No=phone_no))
 
         # ---------------------------------------------------------------------
-        # 6. Users (Admin, Staff, Student)
+        # 6. Users (Admin, Staff, Department Head, Students)
         # ---------------------------------------------------------------------
         user_admin = User(
             Username="admin",
             Role="Admin",
             Email="admin@kkwagh.edu.in",
-            Last_Login=datetime.datetime.utcnow()
+            Last_Login=datetime.datetime.now(datetime.timezone.utc)
         )
         user_admin.set_password("admin123")
 
@@ -195,26 +270,52 @@ def seed_database():
             Username="staff",
             Role="Staff",
             Email="staff@kkwagh.edu.in",
-            Last_Login=datetime.datetime.utcnow() - datetime.timedelta(hours=2)
+            Last_Login=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=2)
         )
         user_staff.set_password("staff123")
 
-        user_student = User(
+        user_exam = User(
+            Username="examcell",
+            Role="Staff",
+            Email="exam_officer@kkwagh.edu.in",
+            Last_Login=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=3)
+        )
+        user_exam.set_password("exam123")
+
+        # Student users with linked Student_ID accounts
+        user_student1 = User(
             Username="student",
             Role="Student",
             Email="aditi.shinde@kkwagh.edu.in",
-            Student_ID=created_students[0].Student_ID,  # Linked to Aditi Shinde
-            Last_Login=datetime.datetime.utcnow() - datetime.timedelta(hours=5)
+            Student_ID=created_students[0].Student_ID,  # Aditi Shinde
+            Last_Login=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=5)
         )
-        user_student.set_password("student123")
+        user_student1.set_password("student123")
 
-        db.session.add_all([user_admin, user_staff, user_student])
+        user_student2 = User(
+            Username="rohan",
+            Role="Student",
+            Email="rohan.patil@kkwagh.edu.in",
+            Student_ID=created_students[1].Student_ID,  # Rohan Patil
+            Last_Login=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)
+        )
+        user_student2.set_password("student123")
+
+        user_student3 = User(
+            Username="snehal",
+            Role="Student",
+            Email="snehal.deshmukh@kkwagh.edu.in",
+            Student_ID=created_students[2].Student_ID,  # Snehal Deshmukh
+            Last_Login=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=2)
+        )
+        user_student3.set_password("student123")
+
+        db.session.add_all([user_admin, user_staff, user_exam, user_student1, user_student2, user_student3])
         db.session.flush()
 
         # ---------------------------------------------------------------------
-        # 7. Certificates (15) - Mix of Active (10), Expired (3), Revoked (2)
+        # 7. Certificates (25) - Mix of Active (17), Expired (5), Revoked (3)
         # ---------------------------------------------------------------------
-        # Create a sample certificate file on disk for demo download
         sample_cert_dir = app.config['CERTIFICATES_FOLDER']
         os.makedirs(sample_cert_dir, exist_ok=True)
         sample_file_path = os.path.join(sample_cert_dir, "sample_diploma_kkw.pdf")
@@ -245,14 +346,34 @@ def seed_database():
             ("KKW-2024-00010", "Diploma in Electronics & Telecommunication", created_students[8].Student_ID, type_diploma.Type_ID, auth_msbte.Authority_ID, datetime.date(2024, 6, 15), None, "Active", "Dist."),
             # 11. Yash Bhamare - Active Project Excellence
             ("KKW-2024-00011", "National Project Competition - First Place", created_students[9].Student_ID, type_project.Type_ID, auth_kkw.Authority_ID, datetime.date(2024, 8, 10), None, "Active", "Top Rank"),
-            # 12. Aditi Shinde - EXPIRED course certificate (Expired on 2024-01-15)
+            # 12. Aditi Shinde - EXPIRED course certificate
             ("KKW-2023-00012", "Industrial Python & IoT Workshop Certification", created_students[0].Student_ID, type_course.Type_ID, auth_kkw.Authority_ID, datetime.date(2023, 1, 15), datetime.date(2024, 1, 15), "Expired", "A"),
-            # 13. Rohan Patil - EXPIRED cybersecurity certificate (Expired on 2024-03-30)
+            # 13. Rohan Patil - EXPIRED cybersecurity certificate
             ("KKW-2023-00013", "Certified Ethical Hacker Hands-on Training", created_students[1].Student_ID, type_course.Type_ID, auth_kkw.Authority_ID, datetime.date(2023, 3, 30), datetime.date(2024, 3, 30), "Expired", "A+"),
             # 14. Snehal Deshmukh - REVOKED certificate
             ("KKW-2024-00014", "Certified Full-Stack Web Developer", created_students[2].Student_ID, type_course.Type_ID, auth_kkw.Authority_ID, datetime.date(2024, 2, 1), datetime.date(2026, 2, 1), "Revoked", "B+"),
-            # 15. Aditya Joshi - EXPIRED Cloud certification (Expired on 2024-05-20)
-            ("KKW-2023-00015", "Google Cloud Associate Engineering Workshop", created_students[5].Student_ID, type_course.Type_ID, auth_kkw.Authority_ID, datetime.date(2023, 5, 20), datetime.date(2024, 5, 20), "Expired", "A")
+            # 15. Aditya Joshi - EXPIRED Cloud certification
+            ("KKW-2023-00015", "Google Cloud Associate Engineering Workshop", created_students[5].Student_ID, type_course.Type_ID, auth_kkw.Authority_ID, datetime.date(2023, 5, 20), datetime.date(2024, 5, 20), "Expired", "A"),
+            # 16. Sakshi Kale - Active Mechanical Diploma
+            ("KKW-2024-00016", "Diploma in Mechanical Engineering", created_students[10].Student_ID, type_diploma.Type_ID, auth_msbte.Authority_ID, datetime.date(2024, 6, 15), None, "Active", "Dist."),
+            # 17. Omkar Shinde - Active Mechanical Diploma
+            ("KKW-2024-00017", "Diploma in Mechanical Engineering", created_students[11].Student_ID, type_diploma.Type_ID, auth_msbte.Authority_ID, datetime.date(2024, 6, 15), None, "Active", "First"),
+            # 18. Shruti Jagtap - Active Civil Diploma
+            ("KKW-2024-00018", "Diploma in Civil Engineering", created_students[12].Student_ID, type_diploma.Type_ID, auth_msbte.Authority_ID, datetime.date(2024, 6, 15), None, "Active", "Dist."),
+            # 19. Tejas Bagul - REVOKED Civil Diploma
+            ("KKW-2024-00019", "Diploma in Civil Engineering", created_students[13].Student_ID, type_diploma.Type_ID, auth_msbte.Authority_ID, datetime.date(2024, 6, 15), None, "Revoked", "Pass"),
+            # 20. Rutuja Nikam - Active AI & Data Science Diploma
+            ("KKW-2024-00020", "Diploma in AI & Data Science", created_students[14].Student_ID, type_diploma.Type_ID, auth_msbte.Authority_ID, datetime.date(2024, 6, 15), None, "Active", "Dist."),
+            # 21. Sahil Sonawane - Active AI & Data Science Diploma
+            ("KKW-2024-00021", "Diploma in AI & Data Science", created_students[15].Student_ID, type_diploma.Type_ID, auth_msbte.Authority_ID, datetime.date(2024, 6, 15), None, "Active", "First"),
+            # 22. Mansi Wagh - Active VLSI Embedded Diploma
+            ("KKW-2024-00022", "Diploma in VLSI & Embedded Systems", created_students[16].Student_ID, type_diploma.Type_ID, auth_kkw.Authority_ID, datetime.date(2024, 7, 5), None, "Active", "Dist."),
+            # 23. Kunal Khairnar - Active Mechatronics
+            ("KKW-2024-00023", "Diploma in Mechatronics & Automation", created_students[17].Student_ID, type_diploma.Type_ID, auth_msbte.Authority_ID, datetime.date(2024, 6, 15), None, "Active", "First"),
+            # 24. Neha Gangurde - EXPIRED Internship Certificate
+            ("KKW-2023-00024", "In-Plant Industrial Training - Cloud Infrastructures", created_students[18].Student_ID, type_internship.Type_ID, auth_dte.Authority_ID, datetime.date(2023, 7, 1), datetime.date(2024, 7, 1), "Expired", "A+"),
+            # 25. Parth Salunke - EXPIRED Robotics Workshop
+            ("KKW-2023-00025", "Industrial Robotics & Computer Vision Certification", created_students[19].Student_ID, type_course.Type_ID, auth_kkw.Authority_ID, datetime.date(2023, 8, 15), datetime.date(2024, 8, 15), "Expired", "Dist.")
         ]
 
         created_certs = []
@@ -298,19 +419,35 @@ def seed_database():
             Revoked_Date=datetime.date(2025, 2, 15),
             User_ID=user_staff.User_ID
         )
-        db.session.add_all([rev_1, rev_2])
+
+        # Revoke cert 19 (Tejas Bagul)
+        rev_3 = Revocation(
+            Certificate_ID=created_certs[18].Certificate_ID,
+            Revocation_No=1,
+            Reason="Candidate failed prerequisite practical examination after scrutiny verification",
+            Revoked_Date=datetime.date(2025, 3, 2),
+            User_ID=user_exam.User_ID
+        )
+        db.session.add_all([rev_1, rev_2, rev_3])
 
         # ---------------------------------------------------------------------
         # 9. Audit Logs
         # ---------------------------------------------------------------------
         sample_logs = [
-            AuditLog(Action="System Initialized with Master Schema and Seed Data", Timestamp=datetime.datetime.utcnow() - datetime.timedelta(days=3), IP_Address="127.0.0.1", User_ID=user_admin.User_ID),
-            AuditLog(Action="Created department 'Computer Technology'", Timestamp=datetime.datetime.utcnow() - datetime.timedelta(days=2, hours=5), IP_Address="127.0.0.1", User_ID=user_admin.User_ID),
-            AuditLog(Action="Registered student 'Aditi Shinde' (2200490001)", Timestamp=datetime.datetime.utcnow() - datetime.timedelta(days=2, hours=3), IP_Address="127.0.0.1", User_ID=user_staff.User_ID),
-            AuditLog(Action="Issued certificate KKW-2024-00001 to student 2200490001", Timestamp=datetime.datetime.utcnow() - datetime.timedelta(days=1, hours=8), IP_Address="127.0.0.1", User_ID=user_staff.User_ID),
-            AuditLog(Action="Revoked certificate KKW-2024-00008 (Reason: Disciplinary Committee Order)", Timestamp=datetime.datetime.utcnow() - datetime.timedelta(days=1, hours=2), IP_Address="127.0.0.1", User_ID=user_admin.User_ID),
-            AuditLog(Action="Login successful for user 'admin'", Timestamp=datetime.datetime.utcnow() - datetime.timedelta(hours=1), IP_Address="127.0.0.1", User_ID=user_admin.User_ID),
-            AuditLog(Action="Public Verification Query: KKW-2024-00001 (Result: Found)", Timestamp=datetime.datetime.utcnow() - datetime.timedelta(minutes=30), IP_Address="192.168.1.15", User_ID=user_admin.User_ID)
+            AuditLog(Action="System Initialized with Master Schema and Seed Data", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=7), IP_Address="127.0.0.1", User_ID=user_admin.User_ID),
+            AuditLog(Action="Created department 'Computer Technology'", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=6, hours=5), IP_Address="127.0.0.1", User_ID=user_admin.User_ID),
+            AuditLog(Action="Created department 'Mechanical Engineering'", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=6, hours=4), IP_Address="127.0.0.1", User_ID=user_admin.User_ID),
+            AuditLog(Action="Created department 'Civil Engineering'", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=6, hours=3), IP_Address="127.0.0.1", User_ID=user_admin.User_ID),
+            AuditLog(Action="Registered student 'Aditi Shinde' (2200490001)", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=5, hours=2), IP_Address="127.0.0.1", User_ID=user_staff.User_ID),
+            AuditLog(Action="Registered student 'Sakshi Kale' (2200490011)", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=5, hours=1), IP_Address="127.0.0.1", User_ID=user_staff.User_ID),
+            AuditLog(Action="Issued certificate KKW-2024-00001 to student 2200490001", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=4, hours=8), IP_Address="127.0.0.1", User_ID=user_staff.User_ID),
+            AuditLog(Action="Issued certificate KKW-2024-00016 to student 2200490011", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=4, hours=6), IP_Address="127.0.0.1", User_ID=user_exam.User_ID),
+            AuditLog(Action="Revoked certificate KKW-2024-00008 (Reason: Disciplinary Committee Order)", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=3, hours=2), IP_Address="127.0.0.1", User_ID=user_admin.User_ID),
+            AuditLog(Action="Revoked certificate KKW-2024-00019 (Reason: Prerequisite failed)", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=2, hours=4), IP_Address="127.0.0.1", User_ID=user_exam.User_ID),
+            AuditLog(Action="Login successful for user 'admin'", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=2), IP_Address="127.0.0.1", User_ID=user_admin.User_ID),
+            AuditLog(Action="Login successful for user 'staff'", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=1), IP_Address="127.0.0.1", User_ID=user_staff.User_ID),
+            AuditLog(Action="Public Verification Query: KKW-2024-00001 (Result: Found)", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=45), IP_Address="192.168.1.15", User_ID=user_admin.User_ID),
+            AuditLog(Action="Public Verification Query: KKW-2024-00008 (Result: Revoked)", Timestamp=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=20), IP_Address="192.168.1.42", User_ID=user_admin.User_ID)
         ]
         db.session.add_all(sample_logs)
 
@@ -318,23 +455,26 @@ def seed_database():
         # 10. Notifications
         # ---------------------------------------------------------------------
         sample_notifs = [
-            Notification(Message="Welcome to EduDesk! Your administrator dashboard has been initialized.", Sent_Date=datetime.datetime.utcnow() - datetime.timedelta(days=3), Status="Read", User_ID=user_admin.User_ID),
-            Notification(Message="Staff permissions configured. You can issue certificates and register student candidates.", Sent_Date=datetime.datetime.utcnow() - datetime.timedelta(days=2), Status="Read", User_ID=user_staff.User_ID),
-            Notification(Message="Your certificate 'Diploma in Computer Technology' (KKW-2024-00001) has been issued.", Sent_Date=datetime.datetime.utcnow() - datetime.timedelta(days=1), Status="Unread", User_ID=user_student.User_ID),
-            Notification(Message="Your certificate 'Annual Departmental Rank 1 Merit Certificate' (KKW-2024-00002) has been issued.", Sent_Date=datetime.datetime.utcnow() - datetime.timedelta(hours=6), Status="Unread", User_ID=user_student.User_ID),
-            Notification(Message="Certificate 'Industrial Python & IoT Workshop' (KKW-2023-00012) has expired.", Sent_Date=datetime.datetime.utcnow() - datetime.timedelta(hours=1), Status="Unread", User_ID=user_student.User_ID)
+            Notification(Message="Welcome to EduDesk! Your administrator dashboard has been initialized.", Sent_Date=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=5), Status="Read", User_ID=user_admin.User_ID),
+            Notification(Message="Staff permissions configured. You can issue certificates and register student candidates.", Sent_Date=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=4), Status="Read", User_ID=user_staff.User_ID),
+            Notification(Message="Examination cell access authorized for summer 2025 diploma result certification.", Sent_Date=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=3), Status="Read", User_ID=user_exam.User_ID),
+            Notification(Message="Your certificate 'Diploma in Computer Technology' (KKW-2024-00001) has been issued.", Sent_Date=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=2), Status="Unread", User_ID=user_student1.User_ID),
+            Notification(Message="Your certificate 'Annual Departmental Rank 1 Merit Certificate' (KKW-2024-00002) has been issued.", Sent_Date=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=12), Status="Unread", User_ID=user_student1.User_ID),
+            Notification(Message="Certificate 'Industrial Python & IoT Workshop' (KKW-2023-00012) has expired.", Sent_Date=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=4), Status="Unread", User_ID=user_student1.User_ID),
+            Notification(Message="Your certificate 'Diploma in Computer Technology' (KKW-2024-00003) has been issued.", Sent_Date=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=2), Status="Unread", User_ID=user_student2.User_ID),
+            Notification(Message="Your certificate 'Diploma in Information Technology' (KKW-2024-00004) has been issued.", Sent_Date=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=2), Status="Unread", User_ID=user_student3.User_ID)
         ]
         db.session.add_all(sample_notifs)
 
         db.session.commit()
-        print("✅ Database successfully seeded with:")
-        print(f"   - 3 Departments, 5 Courses")
-        print(f"   - 4 Certificate Types, 2 Issuing Authorities (with phones)")
-        print(f"   - 10 Students (with phones)")
-        print(f"   - 3 Users: Admin (admin/admin123), Staff (staff/staff123), Student (student/student123)")
-        print(f"   - 15 Certificates: 10 Active, 3 Expired, 2 Revoked (with QR codes and files)")
-        print(f"   - 2 Revocation records (weak entity with composite PK)")
-        print(f"   - Sample Audit Logs and Notifications")
+        print("✅ Database successfully seeded with expanded dummy data:")
+        print(f"   - 6 Departments, 10 Courses")
+        print(f"   - 6 Certificate Types, 3 Issuing Authorities (with 6 phone numbers)")
+        print(f"   - 20 Students (with phone numbers across all engineering branches)")
+        print(f"   - 6 Users: Admin (admin/admin123), Staff (staff/staff123, examcell/exam123), Students (student, rohan, snehal / student123)")
+        print(f"   - 25 Certificates: 17 Active, 5 Expired, 3 Revoked (with QR codes and files)")
+        print(f"   - 3 Revocation records (weak entity with composite PK)")
+        print(f"   - 14 Audit Logs and 8 Notifications")
 
 if __name__ == '__main__':
     seed_database()
