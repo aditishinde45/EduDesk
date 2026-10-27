@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file with override=True
+load_dotenv(override=True)
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-edudesk-secret-key-change-in-prod')

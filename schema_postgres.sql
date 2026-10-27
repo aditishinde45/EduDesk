@@ -180,12 +180,12 @@ CREATE INDEX idx_users_username ON "Users" ("Username");
 -- -----------------------------------------------------------------------------
 CREATE TABLE "Certificate" (
     "Certificate_ID" SERIAL PRIMARY KEY,
-    "Certificate_Number" VARCHAR(30) NOT NULL UNIQUE,
+    "Certificate_Number" VARCHAR(50) NOT NULL UNIQUE,
     "Certificate_Name" VARCHAR(150) NOT NULL,
     "Issue_Date" DATE NOT NULL,
     "Expiry_Date" DATE NULL,
     "Status" VARCHAR(10) DEFAULT 'Active' CHECK ("Status" IN ('Active', 'Expired', 'Revoked')),
-    "Grade" VARCHAR(10),
+    "Grade" VARCHAR(50),
     "QR_Code" VARCHAR(255),
     "Certificate_File" VARCHAR(255),
     "Student_ID" INT NOT NULL,
@@ -223,7 +223,7 @@ CREATE INDEX idx_cert_status ON "Certificate" ("Status");
 CREATE TABLE "Revocation" (
     "Certificate_ID" INT NOT NULL,
     "Revocation_No" INT NOT NULL,
-    "Reason" VARCHAR(255) NOT NULL,
+    "Reason" VARCHAR(500) NOT NULL,
     "Revoked_Date" DATE NOT NULL,
     "User_ID" INT NOT NULL,
     PRIMARY KEY ("Certificate_ID", "Revocation_No"),
@@ -245,7 +245,7 @@ CREATE TABLE "Revocation" (
 -- -----------------------------------------------------------------------------
 CREATE TABLE "Audit_Log" (
     "Log_ID" SERIAL PRIMARY KEY,
-    "Action" VARCHAR(100) NOT NULL,
+    "Action" VARCHAR(255) NOT NULL,
     "Timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "IP_Address" VARCHAR(45),
     "User_ID" INT NOT NULL,

@@ -257,12 +257,12 @@ class Certificate(db.Model):
     __tablename__ = 'Certificate'
 
     Certificate_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    Certificate_Number = db.Column(db.String(30), nullable=False, unique=True)
+    Certificate_Number = db.Column(db.String(50), nullable=False, unique=True)
     Certificate_Name = db.Column(db.String(150), nullable=False)
     Issue_Date = db.Column(db.Date, nullable=False)
     Expiry_Date = db.Column(db.Date, nullable=True)
     Status = db.Column(db.String(10), default='Active')  # Active, Expired, Revoked
-    Grade = db.Column(db.String(10))
+    Grade = db.Column(db.String(50))
     QR_Code = db.Column(db.String(255))
     Certificate_File = db.Column(db.String(255))
 
@@ -313,7 +313,7 @@ class Revocation(db.Model):
         primary_key=True
     )
     Revocation_No = db.Column(db.Integer, primary_key=True)
-    Reason = db.Column(db.String(255), nullable=False)
+    Reason = db.Column(db.String(500), nullable=False)
     Revoked_Date = db.Column(db.Date, nullable=False, default=datetime.date.today)
     User_ID = db.Column(
         db.Integer,
@@ -332,7 +332,7 @@ class AuditLog(db.Model):
     __tablename__ = 'Audit_Log'
 
     Log_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    Action = db.Column(db.String(100), nullable=False)
+    Action = db.Column(db.String(255), nullable=False)
     Timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     IP_Address = db.Column(db.String(45))
     User_ID = db.Column(
