@@ -246,7 +246,7 @@ CREATE TABLE "Revocation" (
 CREATE TABLE "Audit_Log" (
     "Log_ID" SERIAL PRIMARY KEY,
     "Action" VARCHAR(100) NOT NULL,
-    "Timestamp" TIMESTAMP NOT NULL,
+    "Timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "IP_Address" VARCHAR(45),
     "User_ID" INT NOT NULL,
     CONSTRAINT fk_audit_user
@@ -265,8 +265,8 @@ CREATE INDEX idx_audit_timestamp ON "Audit_Log" ("Timestamp");
 CREATE TABLE "Notification" (
     "Notification_ID" SERIAL PRIMARY KEY,
     "Message" TEXT NOT NULL,
-    "Sent_Date" TIMESTAMP NOT NULL,
-    "Status" VARCHAR(15) DEFAULT 'Unread',
+    "Sent_Date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "Status" VARCHAR(15) NOT NULL DEFAULT 'Unread',
     "User_ID" INT NOT NULL,
     CONSTRAINT fk_notification_user
         FOREIGN KEY ("User_ID")

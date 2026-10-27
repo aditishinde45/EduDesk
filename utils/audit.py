@@ -20,7 +20,7 @@ def log_audit(action, user_id=None, ip_address=None):
 
         audit = AuditLog(
             Action=action[:100],
-            Timestamp=datetime.datetime.utcnow(),
+            Timestamp=datetime.datetime.now(datetime.timezone.utc),
             IP_Address=ip_address,
             User_ID=user_id
         )

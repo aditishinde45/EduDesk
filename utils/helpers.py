@@ -1,10 +1,12 @@
 import os
 import uuid
-from flask import request, current_app
+from flask import request, has_request_context, current_app
 from werkzeug.utils import secure_filename
 
 def get_client_ip():
     """Extract client IP address safely, respecting reverse proxies if any."""
+    if not has_request_context():
+        return '127.0.0.1'
     if request.headers.get('X-Forwarded-For'):
         return request.headers.get('X-Forwarded-For').split(',')[0].strip()
     return request.remote_addr or '127.0.0.1'

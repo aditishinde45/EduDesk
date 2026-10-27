@@ -9,14 +9,14 @@ class Config:
     DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
 
     # Database configuration
-    DB_USER = os.getenv('DB_USER', 'root')
+    DB_USER = os.getenv('DB_USER', 'postgres')
     DB_PASSWORD = os.getenv('DB_PASSWORD', '')
     DB_HOST = os.getenv('DB_HOST', 'localhost')
-    DB_PORT = os.getenv('DB_PORT', '3306')
-    DB_NAME = os.getenv('DB_NAME', 'edudesk_db')
+    DB_PORT = os.getenv('DB_PORT', '5432')
+    DB_NAME = os.getenv('DB_NAME', 'EduDesk')
 
-    # Database engine URL (supports both MySQL and PostgreSQL seamlessly)
-    db_type = os.getenv('DB_TYPE', 'mysql').lower()
+    # Database engine URL (supports both PostgreSQL and MySQL seamlessly)
+    db_type = os.getenv('DB_TYPE', 'postgres').lower()
     if db_type in ('postgres', 'postgresql'):
         default_db_url = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     else:
